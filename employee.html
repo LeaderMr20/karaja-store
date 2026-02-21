@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="كراجا حضور" />
+  <meta name="theme-color" content="#1a56db" />
+
+  <title>كراجا — تسجيل الحضور</title>
+
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+  <link rel="stylesheet" href="assets/css/employee.css" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════ -->
+  <!--  LOGIN SCREEN                      -->
+  <!-- ══════════════════════════════════ -->
+  <div id="screen-login" class="screen active">
+    <div class="login-wrap">
+      <div class="app-logo">
+        <div class="logo-emoji">🏝️</div>
+        <h1>نظام حضور كراجا</h1>
+        <p>سجّل دخولك للمتابعة</p>
+      </div>
+
+      <form id="login-form" class="login-card">
+        <div class="field-group">
+          <label>رقم الموظف أو البريد الإلكتروني</label>
+          <input type="text" id="login-id" inputmode="email"
+                 placeholder="employee@karaja.com" autocomplete="username" />
+        </div>
+        <div class="field-group">
+          <label>كلمة المرور</label>
+          <div class="password-wrap">
+            <input type="password" id="login-pass"
+                   placeholder="••••••••" autocomplete="current-password" />
+            <button type="button" class="toggle-pass" id="toggle-pass">👁</button>
+          </div>
+        </div>
+        <div id="login-error" class="error-banner hidden"></div>
+        <button type="submit" class="btn-action btn-primary" id="login-btn">
+          <span>دخول</span>
+        </button>
+      </form>
+
+      <p class="install-hint" id="install-hint" style="display:none;">
+        💡 أضف التطبيق لشاشة الهوم: Safari ← مشاركة ← "إضافة للشاشة الرئيسية"
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!--  HOME SCREEN                       -->
+  <!-- ══════════════════════════════════ -->
+  <div id="screen-home" class="screen">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-info">
+        <div class="emp-avatar" id="emp-avatar">م</div>
+        <div>
+          <div class="emp-name" id="emp-name">جاري التحميل...</div>
+          <div class="emp-dept" id="emp-dept"></div>
+        </div>
+      </div>
+      <button class="btn-logout-sm" id="logout-btn" title="خروج">↩</button>
+    </header>
+
+    <!-- Status Bar -->
+    <div class="status-bar" id="status-bar">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">جاري التحقق...</span>
+    </div>
+
+    <!-- Clock Card -->
+    <div class="clock-card">
+      <div class="clock-time" id="clock-time">00:00:00</div>
+      <div class="clock-date" id="clock-date"></div>
+      <div class="clock-shift">
+        دوام: <span id="shift-start">08:00</span> — <span id="shift-end">17:00</span>
+      </div>
+    </div>
+
+    <!-- GPS Card -->
+    <div class="gps-card" id="gps-card">
+      <div class="gps-header">
+        <span class="gps-icon">📍</span>
+        <span class="gps-label">الموقع الحالي</span>
+        <span class="gps-accuracy" id="gps-accuracy">—</span>
+      </div>
+      <div class="gps-coords" id="gps-coords">جاري تحديد الموقع...</div>
+      <div class="geofence-status" id="geofence-status"></div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="actions-wrap">
+      <button class="btn-action btn-checkin" id="btn-checkin" disabled>
+        <span class="btn-icon-lg">✅</span>
+        <span class="btn-label">تسجيل الحضور</span>
+      </button>
+      <button class="btn-action btn-checkout" id="btn-checkout" disabled>
+        <span class="btn-icon-lg">🚪</span>
+        <span class="btn-label">تسجيل الانصراف</span>
+      </button>
+    </div>
+
+    <!-- Result Banner -->
+    <div id="result-banner" class="result-banner hidden"></div>
+
+    <!-- Today's Log -->
+    <div class="today-log">
+      <h3>سجل اليوم</h3>
+      <div id="today-log-list">
+        <div class="log-empty">لا توجد تسجيلات بعد</div>
+      </div>
+    </div>
+
+    <!-- Offline Badge -->
+    <div id="offline-badge" class="offline-badge hidden">
+      📴 أنت غير متصل — سيتم إرسال البيانات عند الاتصال
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!--  LOADING OVERLAY                   -->
+  <!-- ══════════════════════════════════ -->
+  <div id="loading-overlay" class="loading-overlay hidden">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="loading-text">جاري المعالجة...</div>
+  </div>
+
+  <script src="assets/js/employee.js"></script>
+</body>
+</html>

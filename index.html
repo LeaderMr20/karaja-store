@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>نظام حضور كراجا | لوحة التحكم</title>
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#1a56db" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Login Screen -->
+  <div id="login-screen" class="screen active">
+    <div class="login-container">
+      <div class="login-logo">
+        <div class="logo-icon">🏝️</div>
+        <h1>نظام حضور كراجا</h1>
+        <p>لوحة تحكم الإدارة</p>
+      </div>
+      <form id="login-form" class="login-form">
+        <div class="form-group">
+          <label>البريد الإلكتروني</label>
+          <input type="email" id="login-email" placeholder="admin@karaja.com" required />
+        </div>
+        <div class="form-group">
+          <label>كلمة المرور</label>
+          <input type="password" id="login-password" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn-primary btn-full">تسجيل الدخول</button>
+        <div id="login-error" class="error-msg hidden"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Dashboard -->
+  <div id="dashboard-screen" class="screen">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">🏝️ كراجا</div>
+        <button class="sidebar-toggle" id="sidebar-toggle">☰</button>
+      </div>
+      <nav class="sidebar-nav">
+        <ul>
+          <li><a href="#" class="nav-link active" data-page="overview">
+            <span class="nav-icon">📊</span><span class="nav-text">الرئيسية</span>
+          </a></li>
+          <li><a href="#" class="nav-link" data-page="employees">
+            <span class="nav-icon">👥</span><span class="nav-text">الموظفون</span>
+          </a></li>
+          <li><a href="#" class="nav-link" data-page="attendance">
+            <span class="nav-icon">📋</span><span class="nav-text">سجل الحضور</span>
+          </a></li>
+          <li><a href="#" class="nav-link" data-page="map">
+            <span class="nav-icon">🗺️</span><span class="nav-text">الخريطة المباشرة</span>
+          </a></li>
+          <li><a href="#" class="nav-link" data-page="geofences">
+            <span class="nav-icon">📍</span><span class="nav-text">مناطق العمل</span>
+          </a></li>
+          <li><a href="#" class="nav-link" data-page="reports">
+            <span class="nav-icon">📈</span><span class="nav-text">التقارير</span>
+          </a></li>
+          <li><a href="#" class="nav-link" data-page="alerts">
+            <span class="nav-icon">🔔</span><span class="nav-text">التنبيهات</span>
+            <span class="badge" id="alerts-badge">3</span>
+          </a></li>
+          <li><a href="#" class="nav-link" data-page="audit">
+            <span class="nav-icon">🔍</span><span class="nav-text">سجل التدقيق</span>
+          </a></li>
+          <li><a href="#" class="nav-link" data-page="settings">
+            <span class="nav-icon">⚙️</span><span class="nav-text">الإعدادات</span>
+          </a></li>
+        </ul>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">م</div>
+          <div class="user-details">
+            <span class="user-name">مدير النظام</span>
+            <span class="user-role">Admin</span>
+          </div>
+        </div>
+        <button id="logout-btn" class="btn-logout">خروج</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+
+      <!-- Top Bar -->
+      <div class="topbar">
+        <div class="topbar-left">
+          <h2 id="page-title">لوحة التحكم الرئيسية</h2>
+        </div>
+        <div class="topbar-right">
+          <div class="live-indicator">
+            <span class="live-dot"></span> مباشر
+          </div>
+          <div class="current-time" id="current-time"></div>
+          <button class="btn-icon" id="refresh-btn" title="تحديث">🔄</button>
+        </div>
+      </div>
+
+      <!-- Pages -->
+
+      <!-- Overview Page -->
+      <div class="page active" id="page-overview">
+        <div class="stats-grid">
+          <div class="stat-card stat-present">
+            <div class="stat-icon">✅</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-present">0</div>
+              <div class="stat-label">حاضر الآن</div>
+            </div>
+          </div>
+          <div class="stat-card stat-absent">
+            <div class="stat-icon">❌</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-absent">0</div>
+              <div class="stat-label">غائب</div>
+            </div>
+          </div>
+          <div class="stat-card stat-late">
+            <div class="stat-icon">⏰</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-late">0</div>
+              <div class="stat-label">متأخر</div>
+            </div>
+          </div>
+          <div class="stat-card stat-total">
+            <div class="stat-icon">👥</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-total">0</div>
+              <div class="stat-label">إجمالي الموظفين</div>
+            </div>
+          </div>
+          <div class="stat-card stat-outside">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-outside">0</div>
+              <div class="stat-label">خارج النطاق</div>
+            </div>
+          </div>
+          <div class="stat-card stat-fake">
+            <div class="stat-icon">🚨</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-fake">0</div>
+              <div class="stat-label">GPS مزيف محتمل</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3>الحضور اليومي</h3>
+              <select id="chart-period">
+                <option value="week">آخر أسبوع</option>
+                <option value="month">آخر شهر</option>
+              </select>
+            </div>
+            <canvas id="attendance-chart" height="120"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3>توزيع الحالات</h3>
+            </div>
+            <canvas id="status-chart" height="120"></canvas>
+          </div>
+        </div>
+
+        <div class="card mt-16">
+          <div class="card-header">
+            <h3>آخر تسجيلات الحضور</h3>
+            <button class="btn-secondary btn-sm" onclick="App.navigate('attendance')">عرض الكل</button>
+          </div>
+          <table class="data-table" id="recent-logs-table">
+            <thead>
+              <tr>
+                <th>الموظف</th>
+                <th>الحدث</th>
+                <th>الوقت</th>
+                <th>الموقع</th>
+                <th>الحالة</th>
+              </tr>
+            </thead>
+            <tbody id="recent-logs-body">
+              <tr><td colspan="5" class="loading">جاري التحميل...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Employees Page -->
+      <div class="page" id="page-employees">
+        <div class="page-actions">
+          <div class="search-box">
+            <input type="text" id="employee-search" placeholder="بحث عن موظف..." />
+          </div>
+          <button class="btn-primary" id="add-employee-btn">+ إضافة موظف</button>
+        </div>
+        <div class="card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>الرقم</th>
+                <th>الاسم</th>
+                <th>الإدارة</th>
+                <th>الهاتف</th>
+                <th>الجهاز</th>
+                <th>الحالة</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="employees-body">
+              <tr><td colspan="7" class="loading">جاري التحميل...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Attendance Log Page -->
+      <div class="page" id="page-attendance">
+        <div class="page-actions">
+          <div class="filters">
+            <input type="date" id="filter-date" />
+            <select id="filter-employee">
+              <option value="">جميع الموظفين</option>
+            </select>
+            <select id="filter-type">
+              <option value="">جميع الأنواع</option>
+              <option value="check_in">حضور</option>
+              <option value="check_out">انصراف</option>
+              <option value="periodic">تسجيل دوري</option>
+            </select>
+            <button class="btn-primary" id="filter-btn">تصفية</button>
+          </div>
+          <button class="btn-secondary" id="export-btn">📥 تصدير Excel</button>
+        </div>
+        <div class="card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>الموظف</th>
+                <th>النوع</th>
+                <th>التاريخ</th>
+                <th>الوقت</th>
+                <th>الإحداثيات</th>
+                <th>داخل النطاق</th>
+                <th>GPS</th>
+                <th>الجهاز</th>
+              </tr>
+            </thead>
+            <tbody id="attendance-body">
+              <tr><td colspan="8" class="loading">جاري التحميل...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" id="attendance-pagination"></div>
+      </div>
+
+      <!-- Live Map Page -->
+      <div class="page" id="page-map">
+        <div class="map-layout">
+          <div class="map-sidebar">
+            <h3>الموظفون المباشرون</h3>
+            <div id="live-employees-list"></div>
+          </div>
+          <div class="map-container">
+            <div id="live-map"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Geofences Page -->
+      <div class="page" id="page-geofences">
+        <div class="geofence-layout">
+
+          <!-- Map fills the left area -->
+          <div class="geofence-map-card">
+            <div id="geofence-map"></div>
+          </div>
+
+          <!-- List panel pinned to the right -->
+          <div class="card geofence-list-card">
+            <button class="btn-primary" id="add-geofence-btn">+ إضافة منطقة عمل</button>
+            <h3>مناطق العمل</h3>
+            <div id="geofences-list"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Reports Page -->
+      <div class="page" id="page-reports">
+        <div class="reports-grid">
+          <div class="card report-card" onclick="App.generateReport('monthly')">
+            <div class="report-icon">📅</div>
+            <h3>تقرير شهري</h3>
+            <p>ملخص الحضور والغياب الشهري</p>
+          </div>
+          <div class="card report-card" onclick="App.generateReport('employee')">
+            <div class="report-icon">👤</div>
+            <h3>تقرير موظف</h3>
+            <p>تفاصيل حضور موظف محدد</p>
+          </div>
+          <div class="card report-card" onclick="App.generateReport('department')">
+            <div class="report-icon">🏢</div>
+            <h3>تقرير إدارة</h3>
+            <p>إحصائيات حسب الإدارة</p>
+          </div>
+          <div class="card report-card" onclick="App.generateReport('violations')">
+            <div class="report-icon">⚠️</div>
+            <h3>تقرير المخالفات</h3>
+            <p>حالات GPS مزيف وخروج النطاق</p>
+          </div>
+        </div>
+        <div id="report-output" class="card mt-16 hidden">
+          <div class="card-header">
+            <h3 id="report-title"></h3>
+            <button class="btn-secondary btn-sm" onclick="App.exportReport()">📥 تصدير</button>
+          </div>
+          <div id="report-content"></div>
+        </div>
+      </div>
+
+      <!-- Alerts Page -->
+      <div class="page" id="page-alerts">
+        <div class="card">
+          <div class="card-header">
+            <h3>التنبيهات</h3>
+            <button class="btn-secondary btn-sm" id="mark-all-read">تحديد الكل كمقروء</button>
+          </div>
+          <div id="alerts-list"></div>
+        </div>
+      </div>
+
+      <!-- Audit Log Page -->
+      <div class="page" id="page-audit">
+        <div class="card">
+          <div class="card-header">
+            <h3>سجل التدقيق الكامل</h3>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>الوقت</th>
+                <th>المستخدم</th>
+                <th>الإجراء</th>
+                <th>التفاصيل</th>
+                <th>عنوان IP</th>
+              </tr>
+            </thead>
+            <tbody id="audit-body">
+              <tr><td colspan="5" class="loading">جاري التحميل...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Settings Page -->
+      <div class="page" id="page-settings">
+        <div class="settings-grid">
+          <div class="card">
+            <h3>إعدادات الحضور</h3>
+            <div class="form-group">
+              <label>وقت بداية الدوام</label>
+              <input type="time" id="setting-start-time" value="08:00" />
+            </div>
+            <div class="form-group">
+              <label>وقت نهاية الدوام</label>
+              <input type="time" id="setting-end-time" value="17:00" />
+            </div>
+            <div class="form-group">
+              <label>الحد المسموح للتأخير (دقائق)</label>
+              <input type="number" id="setting-late-threshold" value="15" min="0" max="60" />
+            </div>
+            <div class="form-group">
+              <label>فترة التسجيل الدوري (دقيقة)</label>
+              <input type="number" id="setting-periodic" value="30" min="10" max="120" />
+            </div>
+            <button class="btn-primary" id="save-attendance-settings">حفظ الإعدادات</button>
+          </div>
+          <div class="card">
+            <h3>إعدادات الجيوفنسينج</h3>
+            <div class="form-group">
+              <label>نصف قطر النطاق الافتراضي (متر)</label>
+              <input type="number" id="setting-radius" value="200" min="50" max="5000" />
+            </div>
+            <div class="form-group">
+              <label>دقة GPS المطلوبة (متر)</label>
+              <input type="number" id="setting-gps-accuracy" value="50" min="10" max="500" />
+            </div>
+            <div class="form-group toggle-group">
+              <label>كشف GPS المزيف</label>
+              <label class="toggle">
+                <input type="checkbox" id="setting-fake-gps" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="form-group toggle-group">
+              <label>ربط الجهاز (Device Binding)</label>
+              <label class="toggle">
+                <input type="checkbox" id="setting-device-binding" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <button class="btn-primary" id="save-geo-settings">حفظ الإعدادات</button>
+          </div>
+          <div class="card">
+            <h3>إعدادات الإشعارات</h3>
+            <div class="form-group toggle-group">
+              <label>إشعار عند الغياب</label>
+              <label class="toggle">
+                <input type="checkbox" id="notif-absent" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="form-group toggle-group">
+              <label>إشعار عند الخروج من النطاق</label>
+              <label class="toggle">
+                <input type="checkbox" id="notif-outside" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="form-group toggle-group">
+              <label>إشعار GPS مزيف</label>
+              <label class="toggle">
+                <input type="checkbox" id="notif-fake-gps" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label>البريد الإلكتروني للتنبيهات</label>
+              <input type="email" id="notif-email" placeholder="admin@karaja.com" />
+            </div>
+            <button class="btn-primary" id="save-notif-settings">حفظ الإعدادات</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Modals -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <h3 id="modal-title">عنوان النافذة</h3>
+        <button class="modal-close" id="modal-close">✕</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-footer" id="modal-footer"></div>
+    </div>
+  </div>
+
+  <!-- Toast Notifications -->
+  <div id="toast-container"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>

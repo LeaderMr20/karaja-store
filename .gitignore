@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+
+# Environment variables — NEVER commit these
+.env
+backend/.env
+*.env.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build outputs
+flutter_app/build/
+flutter_app/.dart_tool/
+flutter_app/.flutter-plugins
+flutter_app/.flutter-plugins-dependencies
+flutter_app/.packages
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Claude Code local config
+.claude/
+
+# Temp
+*.tmp
+*.bak

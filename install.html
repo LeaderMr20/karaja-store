@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تثبيت تطبيق كراجا للحضور</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --primary: #1a56db;
+      --success: #0e9f6e;
+      --warning: #d97706;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, 'Segoe UI', Tahoma, sans-serif;
+      background: var(--gray-100);
+      color: var(--gray-900);
+      direction: rtl;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, #0e9f6e 100%);
+      color: #fff;
+      text-align: center;
+      padding: 48px 24px 40px;
+    }
+    .header-emoji { font-size: 64px; margin-bottom: 16px; }
+    .header h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+    .header p  { font-size: 15px; opacity: .8; }
+
+    /* ── Main ── */
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+
+    /* ── QR Section ── */
+    .qr-section {
+      background: #fff;
+      border-radius: 20px;
+      padding: 36px 24px;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      margin-bottom: 32px;
+    }
+
+    .qr-section h2 {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .qr-section .subtitle {
+      color: var(--gray-500);
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+
+    #qr-code {
+      display: inline-block;
+      padding: 16px;
+      background: #fff;
+      border: 3px solid var(--primary);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(26,86,219,0.15);
+    }
+
+    .app-url {
+      margin-top: 20px;
+      display: inline-block;
+      background: var(--gray-100);
+      border: 1.5px solid var(--gray-200);
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-family: monospace;
+      font-size: 15px;
+      color: var(--primary);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+    }
+    .app-url:hover { background: #e8f0fe; }
+
+    .copy-hint {
+      font-size: 12px;
+      color: var(--gray-500);
+      margin-top: 8px;
+    }
+
+    /* ── Steps Grid ── */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    @media (max-width: 600px) {
+      .steps-grid { grid-template-columns: 1fr; }
+    }
+
+    .steps-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+
+    .steps-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--gray-100);
+    }
+
+    .platform-icon { font-size: 32px; }
+
+    .platform-name {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--gray-900);
+    }
+    .platform-sub {
+      font-size: 12px;
+      color: var(--gray-500);
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .step:last-child { margin-bottom: 0; }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-ios .step-num { background: #000; }
+
+    .step-text { font-size: 13px; color: var(--gray-700); line-height: 1.6; }
+    .step-text strong { color: var(--gray-900); }
+
+    .step-img {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--gray-200);
+      margin-top: 6px;
+    }
+
+    /* ── Features ── */
+    .features-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      margin-bottom: 32px;
+    }
+    .features-card h2 {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 14px;
+    }
+
+    .feature-item {
+      background: var(--gray-100);
+      border-radius: 12px;
+      padding: 16px 14px;
+      text-align: center;
+    }
+    .feature-icon { font-size: 28px; margin-bottom: 8px; }
+    .feature-label { font-size: 13px; font-weight: 700; color: var(--gray-700); }
+
+    /* ── Note ── */
+    .note-card {
+      background: #fef3c7;
+      border: 1.5px solid #fde68a;
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 13px;
+      color: #92400e;
+      line-height: 1.6;
+    }
+    .note-icon { font-size: 20px; flex-shrink: 0; }
+
+    /* ── Print button ── */
+    .print-btn {
+      display: block;
+      width: 100%;
+      max-width: 320px;
+      margin: 24px auto 0;
+      padding: 14px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+    }
+    .print-btn:hover { background: #1341a8; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--gray-900);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: transform .3s ease;
+      z-index: 100;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    @media print {
+      .print-btn, #toast { display: none; }
+      body { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-emoji">🏝️</div>
+    <h1>تطبيق كراجا للحضور</h1>
+    <p>امسح الرمز بكاميرا هاتفك أو اتبع الخطوات أدناه</p>
+  </div>
+
+  <div class="container">
+
+    <!-- QR Code -->
+    <div class="qr-section">
+      <h2>امسح رمز QR لفتح التطبيق</h2>
+      <p class="subtitle">افتح كاميرا هاتفك وصوّب على الرمز</p>
+      <div id="qr-code"></div>
+      <br/>
+      <div class="app-url" id="app-url" onclick="copyUrl()">
+        http://192.168.100.194:8080/employee.html
+      </div>
+      <div class="copy-hint">اضغط لنسخ الرابط</div>
+    </div>
+
+    <!-- Installation Steps -->
+    <div class="steps-grid">
+
+      <!-- iOS -->
+      <div class="steps-card">
+        <div class="steps-card-header">
+          <div class="platform-icon">🍎</div>
+          <div>
+            <div class="platform-name">iPhone / iPad</div>
+            <div class="platform-sub">iOS Safari</div>
+          </div>
+        </div>
+
+        <div class="step step-ios">
+          <div class="step-num">1</div>
+          <div class="step-text">
+            افتح <strong>Safari</strong> وادخل الرابط أعلاه
+          </div>
+        </div>
+        <div class="step step-ios">
+          <div class="step-num">2</div>
+          <div class="step-text">
+            اضغط على زر <strong>المشاركة</strong> في الأسفل
+            <br/><span style="font-size:22px;">⬆️</span>
+          </div>
+        </div>
+        <div class="step step-ios">
+          <div class="step-num">3</div>
+          <div class="step-text">
+            اختر <strong>"إضافة إلى الشاشة الرئيسية"</strong>
+            <br/><span style="font-size:14px;color:#888;">Add to Home Screen</span>
+          </div>
+        </div>
+        <div class="step step-ios">
+          <div class="step-num">4</div>
+          <div class="step-text">
+            اضغط <strong>إضافة</strong> — سيظهر التطبيق على شاشتك
+          </div>
+        </div>
+        <div class="step step-ios">
+          <div class="step-num">5</div>
+          <div class="step-text">
+            عند أول فتح، اسمح بالوصول للموقع
+            <strong>GPS</strong> عند الطلب ✅
+          </div>
+        </div>
+      </div>
+
+      <!-- Android -->
+      <div class="steps-card">
+        <div class="steps-card-header">
+          <div class="platform-icon">🤖</div>
+          <div>
+            <div class="platform-name">Android</div>
+            <div class="platform-sub">Chrome Browser</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">
+            افتح <strong>Chrome</strong> وادخل الرابط أعلاه
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">
+            اضغط على القائمة <strong>⋮</strong> في الزاوية
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">
+            اختر <strong>"إضافة إلى الشاشة الرئيسية"</strong>
+            <br/><span style="font-size:14px;color:#888;">Add to Home Screen</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-text">
+            اضغط <strong>تثبيت</strong> — أو انتظر نافذة التثبيت التلقائية
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-num" style="background:var(--success);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;">✓</div>
+          <div class="step-text">
+            اسمح بالوصول للموقع <strong>GPS</strong> عند الطلب ✅
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Features -->
+    <div class="features-card">
+      <h2>مميزات التطبيق</h2>
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-icon">✅</div>
+          <div class="feature-label">تسجيل حضور بنقرة واحدة</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📍</div>
+          <div class="feature-label">تحقق تلقائي من موقعك</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📴</div>
+          <div class="feature-label">يعمل بدون إنترنت</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🔒</div>
+          <div class="feature-label">بيانات مشفرة وآمنة</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">⏱️</div>
+          <div class="feature-label">تسجيل دوري كل 30 دقيقة</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📱</div>
+          <div class="feature-label">يعمل iOS و Android</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Note -->
+    <div class="note-card">
+      <div class="note-icon">💡</div>
+      <div>
+        <strong>ملاحظة مهمة:</strong> تأكد من أن هاتفك متصل بنفس شبكة Wi-Fi الخاصة بالشركة.
+        كلمة مرور التطبيق: <strong>karaja123</strong> (سيتم تغييرها لاحقاً من الإدارة).
+      </div>
+    </div>
+
+    <button class="print-btn" onclick="window.print()">
+      🖨️ طباعة هذه الصفحة للتوزيع
+    </button>
+
+  </div>
+
+  <!-- Toast -->
+  <div id="toast">✅ تم نسخ الرابط!</div>
+
+  <script>
+    // Generate QR Code
+    const appUrl = 'http://192.168.100.194:8080/employee.html';
+
+    new QRCode(document.getElementById('qr-code'), {
+      text: appUrl,
+      width: 220,
+      height: 220,
+      colorDark: '#1a56db',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H,
+    });
+
+    // Copy URL
+    function copyUrl() {
+      navigator.clipboard.writeText(appUrl).then(() => {
+        const t = document.getElementById('toast');
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2500);
+      });
+    }
+  </script>
+</body>
+</html>
