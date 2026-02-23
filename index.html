@@ -30,12 +30,12 @@
           <label>كلمة المرور</label>
           <div style="position:relative;">
             <input type="password" id="login-password" placeholder="••••••••" required
-                   style="padding-left:44px; width:100%;" />
+                   style="padding-right:44px; width:100%; box-sizing:border-box;" />
             <button type="button" id="toggle-login-pass"
                     onclick="var i=document.getElementById('login-password'),b=this;i.type=i.type==='password'?(b.textContent='🙈','text'):(b.textContent='👁','password')"
-                    style="position:absolute;left:12px;top:50%;transform:translateY(-50%);
+                    style="position:absolute;right:12px;top:50%;transform:translateY(-50%);
                            background:none;border:none;cursor:pointer;font-size:20px;
-                           line-height:1;padding:0;color:rgba(255,255,255,0.6);"
+                           line-height:1;padding:0;color:rgba(255,255,255,0.7);z-index:2;"
                     title="إظهار/إخفاء كلمة المرور">👁</button>
           </div>
         </div>
