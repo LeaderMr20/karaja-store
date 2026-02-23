@@ -290,6 +290,16 @@ PHP;
 
     .hint { font-size: 11px; color: #9ca3af; margin-top: 4px; }
 
+    .pass-wrap { position: relative; }
+    .pass-wrap input { padding-left: 44px; }
+    .pass-toggle {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      font-size: 18px; line-height: 1; padding: 0; color: #9ca3af;
+      transition: color .2s;
+    }
+    .pass-toggle:hover { color: #6366f1; }
+
     .alert {
       padding: 14px 16px; border-radius: 10px;
       font-size: 13px; margin-bottom: 20px; line-height: 1.6;
@@ -426,9 +436,12 @@ PHP;
 
       <div class="field">
         <label>كلمة مرور MySQL</label>
-        <input type="password" name="db_pass"
-               placeholder="كلمة مرور قاعدة البيانات"
-               value="<?= htmlspecialchars($_POST['db_pass'] ?? '') ?>" />
+        <div class="pass-wrap">
+          <button type="button" class="pass-toggle" onclick="togglePass('db_pass',this)" title="إظهار/إخفاء">👁</button>
+          <input type="password" name="db_pass" id="db_pass"
+                 placeholder="كلمة مرور قاعدة البيانات"
+                 value="<?= htmlspecialchars($_POST['db_pass'] ?? '') ?>" />
+        </div>
         <div class="hint">يمكن أن تكون فارغة إذا لم تُعيَّن</div>
       </div>
 
@@ -451,9 +464,12 @@ PHP;
         </div>
         <div class="field">
           <label>كلمة مرور المدير</label>
-          <input type="password" name="admin_pass"
-                 placeholder="على الأقل 8 أحرف"
-                 value="<?= htmlspecialchars($_POST['admin_pass'] ?? 'admin123') ?>" />
+          <div class="pass-wrap">
+            <button type="button" class="pass-toggle" onclick="togglePass('admin_pass',this)" title="إظهار/إخفاء">👁</button>
+            <input type="password" name="admin_pass" id="admin_pass"
+                   placeholder="على الأقل 8 أحرف"
+                   value="<?= htmlspecialchars($_POST['admin_pass'] ?? 'admin123') ?>" />
+          </div>
         </div>
       </div>
 
@@ -463,5 +479,17 @@ PHP;
   <?php endif; ?>
 
 </div>
+  <script>
+    function togglePass(fieldId, btn) {
+      var input = document.getElementById(fieldId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        btn.textContent = '👁';
+      }
+    }
+  </script>
 </body>
 </html>
