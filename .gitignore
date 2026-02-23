@@ -7,6 +7,9 @@ backend/node_modules/
 backend/.env
 *.env.local
 
+# PHP API config (contains DB credentials)
+api/config.php
+
 # Logs
 *.log
 npm-debug.log*

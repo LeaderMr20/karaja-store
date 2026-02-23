@@ -1,0 +1,15 @@
+# Karaja Island — Root URL Rewriting
+# Required for the /api/* routes to reach api/index.php
+
+Options -Indexes
+
+RewriteEngine On
+RewriteBase /
+
+# Let actual files and directories pass through untouched
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Route /api/* requests to api/index.php
+RewriteRule ^api/(.*)$ api/index.php?path=$1 [L,QSA]

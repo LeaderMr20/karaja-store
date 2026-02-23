@@ -1,0 +1,13 @@
+# Karaja Island — API URL Rewriting
+# Rewrites /api/auth/login  →  /api/index.php?path=auth/login
+
+Options -Indexes
+
+RewriteEngine On
+RewriteBase /api/
+
+# Skip if the request is for an actual file (config.php, etc.)
+RewriteCond %{REQUEST_FILENAME} !-f
+
+# Route everything else through index.php
+RewriteRule ^(.+)$ index.php?path=$1 [L,QSA]

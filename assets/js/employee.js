@@ -153,26 +153,11 @@ function setupLogin() {
     btn.innerHTML = '<div style="width:18px;height:18px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto;"></div>';
 
     try {
-      // Demo mode: accept any @karaja.com email with password 'karaja123'
-      if ((id.includes('@') || /^\d+$/.test(id)) && pw === 'karaja123') {
-        const demoEmployee = {
-          id: 1,
-          name: id.includes('@') ? id.split('@')[0] : `موظف ${id}`,
-          department: 'الإدارة العامة',
-          geofenceId: 1,
-        };
-        state.employee = demoEmployee;
-        state.token    = 'demo-token';
-        saveAuth(demoEmployee, 'demo-token');
-        showHome();
-      } else {
-        // Real API call
-        const res = await fetchAPI('/auth/login', 'POST', { email: id, password: pw }, false);
-        state.employee = res.user;
-        state.token    = res.token;
-        saveAuth(res.user, res.token);
-        showHome();
-      }
+      const res = await fetchAPI('/auth/login', 'POST', { email: id, password: pw }, false);
+      state.employee = res.user;
+      state.token    = res.token;
+      saveAuth(res.user, res.token);
+      showHome();
     } catch (err) {
       errEl.textContent = err.message || 'فشل تسجيل الدخول';
       errEl.classList.remove('hidden');
