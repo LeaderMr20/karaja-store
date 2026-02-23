@@ -28,7 +28,16 @@
         </div>
         <div class="form-group">
           <label>كلمة المرور</label>
-          <input type="password" id="login-password" placeholder="••••••••" required />
+          <div style="position:relative;">
+            <input type="password" id="login-password" placeholder="••••••••" required
+                   style="padding-left:44px; width:100%;" />
+            <button type="button" id="toggle-login-pass"
+                    onclick="var i=document.getElementById('login-password'),b=this;i.type=i.type==='password'?(b.textContent='🙈','text'):(b.textContent='👁','password')"
+                    style="position:absolute;left:12px;top:50%;transform:translateY(-50%);
+                           background:none;border:none;cursor:pointer;font-size:20px;
+                           line-height:1;padding:0;color:rgba(255,255,255,0.6);"
+                    title="إظهار/إخفاء كلمة المرور">👁</button>
+          </div>
         </div>
         <button type="submit" class="btn-primary btn-full">تسجيل الدخول</button>
         <div id="login-error" class="error-msg hidden"></div>
