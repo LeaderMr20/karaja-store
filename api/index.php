@@ -32,6 +32,22 @@
  *   GET    /api/health
  */
 
+// ── Suppress PHP errors from leaking into JSON output ─────────────────────────
+ini_set('display_errors', 0);
+error_reporting(0);
+
+// ── Always output JSON, even for fatal errors ──────────────────────────────────
+register_shutdown_function(function () {
+    $err = error_get_last();
+    if ($err && in_array($err['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        if (!headers_sent()) {
+            header('HTTP/1.1 500 Internal Server Error');
+            header('Content-Type: application/json; charset=utf-8');
+        }
+        echo json_encode(['error' => 'Server error: ' . $err['message']]);
+    }
+});
+
 // ── Config ────────────────────────────────────────────────────────────────────
 $configFile = __DIR__ . '/config.php';
 if (!file_exists($configFile)) {
