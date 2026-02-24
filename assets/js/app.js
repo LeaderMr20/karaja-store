@@ -48,38 +48,90 @@ const App = (() => {
     if (el) el.textContent = new Date().toLocaleTimeString('ar-SA');
   }
 
+  // ====== API HELPER ======
+  async function apiCall(path, method = 'GET', body = null) {
+    const token = localStorage.getItem('karaja_admin_token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+
+    const clean = path.replace(/^\//, '');
+    const [pathPart, queryPart] = clean.split('?');
+    let url = '/api/index.php?path=' + pathPart;
+    if (queryPart) url += '&' + queryPart;
+
+    const res = await fetch(url, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+      signal: AbortSignal.timeout(15000),
+    });
+
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); }
+    catch (_) { throw new Error('خطأ في الخادم — يرجى تحديث الصفحة'); }
+    if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+    return data;
+  }
+
   // ====== AUTH ======
   function setupAuth() {
     const form = document.getElementById('login-form');
-    form.addEventListener('submit', e => {
+    form.addEventListener('submit', async e => {
       e.preventDefault();
-      const email = document.getElementById('login-email').value;
+      const email    = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
-      const errEl = document.getElementById('login-error');
+      const errEl    = document.getElementById('login-error');
+      const btn      = form.querySelector('button[type=submit]');
 
-      // Demo credentials
-      if (email === 'admin@karaja.com' && password === 'admin123') {
+      errEl.classList.add('hidden');
+      btn.disabled = true;
+      btn.textContent = 'جارٍ التحقق...';
+
+      try {
+        const data = await apiCall('/auth/login', 'POST', { email, password });
+        if (data.user && data.user.role !== 'admin') {
+          throw new Error('هذه الصفحة للمديرين فقط');
+        }
+        localStorage.setItem('karaja_admin_token', data.token);
+        localStorage.setItem('karaja_admin_user',  JSON.stringify(data.user));
         errEl.classList.add('hidden');
-        login();
-      } else {
-        errEl.textContent = 'بيانات الدخول غير صحيحة. جرب: admin@karaja.com / admin123';
+        login(data.user);
+      } catch (err) {
+        errEl.textContent = err.message || 'بيانات الدخول غير صحيحة';
         errEl.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'تسجيل الدخول';
       }
     });
 
     document.getElementById('logout-btn').addEventListener('click', logout);
+
+    // Auto-login if token exists
+    const saved = localStorage.getItem('karaja_admin_token');
+    if (saved) {
+      apiCall('/auth/me').then(data => {
+        if (data.user && data.user.role === 'admin') {
+          login(data.user);
+        } else { localStorage.removeItem('karaja_admin_token'); }
+      }).catch(() => localStorage.removeItem('karaja_admin_token'));
+    }
   }
 
-  function login() {
+  function login(user) {
     state.authenticated = true;
     document.getElementById('login-screen').classList.remove('active');
     document.getElementById('dashboard-screen').classList.add('active');
     navigate('overview');
-    toast('مرحباً بك في نظام كراجا للحضور', 'success');
+    const name = (user && user.name) ? user.name : 'المدير';
+    toast('مرحباً ' + name + ' في نظام كراجا للحضور', 'success');
   }
 
   function logout() {
     if (!confirm('هل تريد تسجيل الخروج؟')) return;
+    localStorage.removeItem('karaja_admin_token');
+    localStorage.removeItem('karaja_admin_user');
     state.authenticated = false;
     document.getElementById('dashboard-screen').classList.remove('active');
     document.getElementById('login-screen').classList.add('active');

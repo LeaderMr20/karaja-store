@@ -465,14 +465,28 @@ async function fetchAPI(path, method = 'GET', body = null, auth = true) {
   const headers = { 'Content-Type': 'application/json' };
   if (auth && state.token) headers['Authorization'] = `Bearer ${state.token}`;
 
-  const res = await fetch(API_BASE + '/api' + path, {
+  // Build URL: call index.php directly (bypasses mod_rewrite issues on shared hosting)
+  const clean = path.replace(/^\//, '');                 // remove leading slash
+  const [pathPart, queryPart] = clean.split('?');
+  let url = API_BASE + '/api/index.php?path=' + pathPart;
+  if (queryPart) url += '&' + queryPart;
+
+  const res = await fetch(url, {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
     signal: AbortSignal.timeout(15000),
   });
 
-  const data = await res.json();
+  const text = await res.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (_) {
+    // Server returned HTML (error page or anti-bot challenge)
+    console.error('Non-JSON response:', text.substring(0, 200));
+    throw new Error('خطأ في الخادم — يرجى تحديث الصفحة والمحاولة مرة أخرى');
+  }
   if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
   return data;
 }
